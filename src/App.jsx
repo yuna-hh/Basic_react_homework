@@ -1,31 +1,89 @@
-import { useState } from "react";
-import "./App.css";
-import "./style.css";
+import React, { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 
-function App() {
-  const [count, setCount] = useState(0);
-  const addCount = () => {
-    setCount((prev) => prev + 1);
+const App = () => {
+  const [todoInput, setTodoInput] = useState("");
+  const [todos, setTodos] = useState([]);
+
+  const formHandler = (event) => {
+    event.preventDefault();
+    if (!todoInput.trim()) {
+      return alert("값을 입력하세요");
+    }
+
+    const newTodo = {
+      id: uuidv4(),
+      content: todoInput,
+      completed: false,
+    };
+
+    setTodos((prev) => [...prev, newTodo]);
+    setTodoInput("");
   };
-  const minusCount = () => {
-    setCount((prev) => prev - 1);
+  console.log(todos);
+
+  const inputHandler = (event) => {
+    setTodoInput(event.target.value);
+    // console.log(todoInput);
   };
 
-  const resetCount = () => {
-    setCount(0);
+  const deleteTodoBtn = (newTodoId) => {
+    const filteredItems = todos.filter(
+      (clickeditem) => newTodoId !== clickeditem.id
+    );
+    return setTodos(filteredItems);
+  };
+
+  const toggleTodoBtn = (newTodoId) => {
+    setTodos(
+      todos.map((todo) => {
+        return todo.id === newTodoId
+          ? { ...todo, completed: !todo.completed }
+          : todo;
+      })
+    );
   };
   return (
     <>
-      <div className="container">
-        <h1>Count: {count} </h1>
-        <div className="btn_wrap">
-          <button onClick={minusCount}>-</button>
-          <button onClick={resetCount}>reset</button>
-          <button onClick={addCount}>+</button>
-        </div>
-      </div>
+      <form className="form_container" onSubmit={formHandler}>
+        <input
+          onChange={inputHandler}
+          value={todoInput}
+          placeholder="오늘의 할 일은?"
+          type="text"
+        />
+        <button>추가</button>
+      </form>
+      <ul>
+        {todos.map((newTodo) => {
+          return (
+            <li
+              key={newTodo.id}
+              style={{
+                textDecoration: newTodo.completed ? "line-through" : "none",
+              }}
+            >
+              {newTodo.content}
+              <button
+                onClick={() => {
+                  toggleTodoBtn(newTodo.id);
+                }}
+              >
+                {newTodo.completed ? "취소" : "완료"}
+              </button>
+              <button
+                onClick={() => {
+                  deleteTodoBtn(newTodo.id);
+                }}
+              >
+                삭제
+              </button>
+            </li>
+          );
+        })}
+      </ul>
     </>
   );
-}
+};
 
 export default App;
